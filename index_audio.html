@@ -80,8 +80,12 @@
             border-color: #27ae60;
         }
 
-        .btn-check {
-            background-color: #e67e22;
+        .button-container {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
             color: white;
             border: none;
             padding: 12px 30px;
@@ -93,13 +97,27 @@
             transition: all 0.2s ease;
         }
 
+        .btn-check {
+            background-color: #e67e22;
+        }
+
         .btn-check:hover {
             background-color: #d35400;
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0,0,0,0.15);
         }
 
-        .btn-check:active {
+        .btn-stop {
+            background-color: #e74c3c;
+        }
+
+        .btn-stop:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
             transform: translateY(0);
         }
 
@@ -112,6 +130,17 @@
                 gap: 5px;
                 padding: 10px;
             }
+            .button-container {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                max-width: 300px;
+            }
+            .btn {
+                width: 100%;
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
@@ -122,7 +151,10 @@
 
     <div class="bingo-grid" id="bingoBoard"></div>
 
-    <button class="btn-check" onclick="checkForWin()">Check for Win! 🎉</button>
+    <div class="button-container">
+        <button class="btn btn-check" onclick="checkForWin()">Check for Win! 🎉</button>
+        <button class="btn btn-stop" onclick="stopVictorySound()">Stop Sound 🛑</button>
+    </div>
 
     <!-- Invisible HTML5 Audio Element -->
     <audio id="victoryAudio" src="winwinwin.mp3" preload="auto"></audio>
@@ -178,10 +210,18 @@
         function playVictorySound() {
             const audio = document.getElementById('victoryAudio');
             if (audio) {
-                audio.currentTime = 0; // Rewind to start in case it plays multiple times
+                audio.currentTime = 0; 
                 audio.play().catch(error => {
-                    console.log("Playback failed. This can happen if the audio file isn't uploaded or named correctly:", error);
+                    console.log("Playback failed. Ensure the audio file matches 'victory.mp3' exactly.", error);
                 });
+            }
+        }
+
+        function stopVictorySound() {
+            const audio = document.getElementById('victoryAudio');
+            if (audio) {
+                audio.pause();
+                audio.currentTime = 0; // Reset position back to the beginning
             }
         }
 
@@ -238,7 +278,7 @@
                 playVictorySound();
                 setTimeout(() => {
                     alert("BINGO! You win! 🎶🎉🏆");
-                }, 100); // Slight delay so the sound has a chance to play over the blocking alert window
+                }, 100); 
             } else {
                 alert("No bingo yet. Keep playing!");
             }
