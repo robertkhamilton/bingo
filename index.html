@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio & Music Tech Bingo</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        p {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            width: 100%;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .cell {
+            background-color: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #34495e;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        .cell:hover {
+            background-color: #e2e6e7;
+            transform: scale(1.02);
+        }
+
+        .cell.marked {
+            background-color: #2ecc71;
+            border-color: #27ae60;
+            color: white;
+            text-decoration: line-through;
+        }
+
+        .cell.free-space {
+            background-color: #3498db;
+            border-color: #2980b9;
+            color: white;
+            font-weight: bold;
+        }
+
+        .cell.free-space.marked {
+            background-color: #2ecc71;
+            border-color: #27ae60;
+        }
+
+        .btn-check {
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .btn-check:hover {
+            background-color: #d35400;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-check:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .cell {
+                font-size: 0.65rem;
+                padding: 2px;
+            }
+            .bingo-grid {
+                gap: 5px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Audio & Music Tech Bingo</h1>
+    <p>Click a square to mark it off! Refresh the page to generate a new card.</p>
+
+    <div class="bingo-grid" id="bingoBoard"></div>
+
+    <button class="btn-check" onclick="checkForWin()">Check for Win! 🎉</button>
+
+    <script>
+        const wordPool = [
+            "Frequency", "Root", "MIDI (0-127)", "Pitch", "Speed", "Sharp(#)", "Octave", 
+            "Flat(b)", "Timbre", "Partial", "Equal Temperament", "C4, D, E, F, G...", 
+            "Loudness", "Amplitude", "Harmonic", "Volume", "Fifth", "Chromatic", "Gain", 
+            "Fourth", "Diatonic", "Note", "Third", "Consonance", "Scale", "Major", 
+            "Dissonance", "Interval", "Minor", "Cent", "Mode", "Perfect", "Microtone", 
+            "Chord", "Sample", "Period", "Sample 44.1 kHz", "Compact Disc", "Sampling Rate", 
+            "48 kHz", "96 kHz", "Bit Depth", "Nyquist Theorem", "Quantization", 
+            "Aliasing/Foldback", "Resolution", "Distortion", "Signal Clipping", "Noise", "PCM"
+        ];
+
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        function generateBoard() {
+            const board = document.getElementById('bingoBoard');
+            const shuffledWords = shuffle([...wordPool]);
+            
+            let wordIndex = 0;
+
+            for (let i = 0; i < 25; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+
+                if (i === 12) {
+                    cell.textContent = "FREE SPACE";
+                    cell.classList.add('free-space', 'marked'); 
+                } else {
+                    cell.textContent = shuffledWords[wordIndex];
+                    wordIndex++;
+                }
+
+                cell.addEventListener('click', () => {
+                    cell.classList.toggle('marked');
+                });
+
+                board.appendChild(cell);
+            }
+        }
+
+        // Web Audio API synthesis for the celebration sound
+        function playVictorySound() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                const ctx = new AudioContext();
+                
+                // Fun chord progression (C4, E4, G4, C5)
+                const notes = [261.63, 329.63, 392.00, 523.25]; 
+                const now = ctx.currentTime;
+                
+                notes.forEach((freq, index) => {
+                    const osc = ctx.createOscillator();
+                    const gainNode = ctx.createGain();
+                    
+                    // Fitting audio tech theme: triangle wave gives an upbeat retro game vibe
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + (index * 0.1));
+                    
+                    // Envelope to fade the notes out smoothly
+                    gainNode.gain.setValueAtTime(0.2, now + (index * 0.1));
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, now + (index * 0.1) + 0.6);
+                    
+                    osc.connect(gainNode);
+                    gainNode.connect(ctx.destination);
+                    
+                    osc.start(now + (index * 0.1));
+                    osc.stop(now + (index * 0.1) + 0.6);
+                });
+            } catch (e) {
+                console.log("AudioContext not supported or blocked by browser policy.");
+            }
+        }
+
+        function checkForWin() {
+            const cells = document.querySelectorAll('.cell');
+            const size = 5;
+            let hasWon = false;
+
+            // 1. Check Rows
+            for (let row = 0; row < size; row++) {
+                let rowComplete = true;
+                for (let col = 0; col < size; col++) {
+                    if (!cells[row * size + col].classList.contains('marked')) {
+                        rowComplete = false;
+                        break;
+                    }
+                }
+                if (rowComplete) hasWon = true;
+            }
+
+            // 2. Check Columns
+            for (let col = 0; col < size; col++) {
+                let colComplete = true;
+                for (let row = 0; row < size; row++) {
+                    if (!cells[row * size + col].classList.contains('marked')) {
+                        colComplete = false;
+                        break;
+                    }
+                }
+                if (colComplete) hasWon = true;
+            }
+
+            // 3. Check Diagonals
+            let diag1Complete = true;
+            for (let i = 0; i < size; i++) {
+                if (!cells[i * size + i].classList.contains('marked')) {
+                    diag1Complete = false;
+                    break;
+                }
+            }
+            if (diag1Complete) hasWon = true;
+
+            let diag2Complete = true;
+            for (let i = 0; i < size; i++) {
+                if (!cells[i * size + (size - 1 - i)].classList.contains('marked')) {
+                    diag2Complete = false;
+                    break;
+                }
+            }
+            if (diag2Complete) hasWon = true;
+
+            // Trigger Victory Sound & Alert
+            if (hasWon) {
+                playVictorySound();
+                // Delay alert slightly so audio starts cleanly first
+                setTimeout(() => {
+                    alert("BINGO! You win! 🎶🎉🏆");
+                }, 50);
+            } else {
+                alert("No bingo yet. Keep playing!");
+            }
+        }
+
+        generateBoard();
+    </script>
+
+</body>
+</html>
